@@ -1,0 +1,57 @@
+{
+  "page": {
+    "label": "TRANSLATE.PLUGIN_CONFIGURATION"
+  },
+  "sections": [
+    {
+      "id": "user",
+      "element": "section",
+      "label": "last.fm account information",
+      "icon": "fa_plug",
+      "onSave": {"type":"controller", "endpoint":"miscellanea/lastfmscrobble", "method":"saveLastfmAccount"},
+      "saveButton": {
+        "label": "Save",
+        "data": [
+          "username",
+          "password",
+          "api_key",
+          "api_secret"
+        ]
+      },
+      "content": [
+        {
+          "id": "username",
+          "type":"text",
+          "element": "input",
+          "doc": "This is the username of your last.fm account",
+          "label": "Username",
+          "value": ""
+        },
+        {
+          "id": "password",
+          "type": "text",
+          "element": "input",
+          "doc": "This is your last.fm password",
+          "label": "Password",
+          "value": ""
+        },
+        {
+          "id": "api_key",
+          "type": "text",
+          "element": "input",
+          "doc": "This is the API key - if you don't have one head over to last.fm and sign up for a key",
+          "label": "API Key",
+          "value": ""
+        },
+        {
+          "id": "api_secret",
+          "type": "text",
+          "element": "input",
+          "doc": "This is the shared secret connected to the API key",
+          "label": "Shared secret",
+          "value": ""
+        }
+      ]
+    }
+  ]
+}

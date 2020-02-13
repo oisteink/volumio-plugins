@@ -1,0 +1,23 @@
+{
+	"name": "lastfmscrobble",
+	"version": "1.0.0",
+	"description": "Scrobbles to last.fm",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Øistein Kjos",
+	"license": "ISC",
+	"volumio_info": {
+		"prettyName": "lastfmscrobble",
+		"icon": "fa-lightbulb-o",
+		"plugin_type": "miscellanea"
+	},
+	"dependencies": {
+		"fs-extra": "^0.28.0",
+		"kew": "^0.7.0",
+		"lastfm-node-client": "^2.1.0",
+		"socket.io-client": "^2.3.0",
+		"v-conf": "^1.4.0"
+	}
+}
