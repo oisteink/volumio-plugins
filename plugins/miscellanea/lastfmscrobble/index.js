@@ -7,7 +7,7 @@ var exec = require('child_process').exec;
 var execSync = require('child_process').execSync;
 
 var io = require('socket.io-client');
-var lastfmNodeClient = require('lastfm-node-client');
+var lastfmNodeClient = require('./lastfm-node-client');
 
 module.exports = lastfmscrobble;
 function lastfmscrobble(context) {
@@ -70,7 +70,7 @@ lastfmscrobble.prototype.log = function(string) {
 
 lastfmscrobble.prototype.scrobbleTimeoutHandler = function() {
 	this.lastfm.trackScrobble(this.scrobbleData)
-	.then(this.lfmOkcb.bind(this))
+	.then(this.lfmScrobbleOkcb.bind(this))
 	.catch(this.lfmFailcb.bind(this))
 }
 
@@ -80,8 +80,52 @@ lastfmscrobble.prototype.stopTimers = function() {
 		this.scrobbleTimeoutHandle = 0;
 	}
 }
+/*
+ {
+	"scrobbles":{
+		"@attr":{
+				"accepted":1,
+			"ignored":0
+			},
+		"scrobble":{
+			"artist":{
+				"corrected":"0",
+				"#text":"Transglobal Underground"
+			},
+			"ignoredMessage":{
+				"code":"0",
+				"#text":""
+			},
+			"albumArtist":{
+				"corrected":"0",
+				"#text":""
+			},
+			"timestamp":"1581632525",
+			"album":{
+				"corrected":"0",
+				"#text":"International Times"
+			},
+			"track":{
+				"corrected":"0","#text":"Lookee Here"
+			}
+		}
+	}
+}
+*/
+
+lastfmscrobble.prototype.lfmScrobbleOkcb = function(data) {
+	this.log(JSON.stringify(data));
+	this.commandRouter.pushToastMessage('success', "last.fm scrobble", "Scrobbled "+data.scrobbles.scrobble.artist['#text'] + ' - ' + data.scrobbles.scrobble.track['#text']);
+	/*for (var [key, value] of Object.entries(data.scrobbles.scrobble.artist)) {
+		this.log(key+':'+value);
+		}
+	//this.log(data.scrobbles.scrobble.artist[1]);*/
+	//this.log(data.scrobbles.scrobble.artist['#text']); //NAI!! VI måsta finne den!!! 
+//	this.log(Object.getOwnPropertyNames(Array(data.scrobbles.scrobble.track)));
+}
 
 lastfmscrobble.prototype.lfmOkcb = function(data) {
+	//this.commandRouter.pushToastMessage('success', "last.fm scrobble", "Scrobbled "+data.scrobbles.scrobble.artist + ' - ' + data.scrobbles.scrobble.track.#text);
 	this.log(JSON.stringify(data));
 }
 
