@@ -1,0 +1,39 @@
+{
+  "page": {
+    "label": "TRANSLATE.PLUGIN_CONFIGURATION"
+  },
+  "sections": [
+    {
+      "id": "user",
+      "element": "section",
+      "label": "last.fm account information",
+      "icon": "fa_plug",
+      "onSave": {"type":"controller", "endpoint":"miscellanea/lastfmscrobble", "method":"saveLastfmAccount"},
+      "saveButton": {
+        "label": "Save",
+        "data": [
+          "username",
+          "password"
+        ]
+      },
+      "content": [
+        {
+          "id": "username",
+          "type":"text",
+          "element": "input",
+          "doc": "This is the username of your last.fm account",
+          "label": "Username",
+          "value": ""
+        },
+        {
+          "id": "password",
+          "type": "text",
+          "element": "input",
+          "doc": "This is your last.fm password",
+          "label": "Password",
+          "value": ""
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+[submodule "plugins/miscellanea/lastfmscrobble/lastfm-node-client"]
+	path = plugins/miscellanea/lastfmscrobble/lastfm-node-client
+	url = https://github.com/oisteink/lastfm-node-client.git
