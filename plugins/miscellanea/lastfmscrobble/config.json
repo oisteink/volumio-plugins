@@ -6,13 +6,5 @@
     "password" : {
         "type": "string",
         "value": ""
-    },
-    "api_key": {
-        "type": "string",
-        "value": ""
-    },
-    "api_secret": {
-        "type": "string",
-        "value": ""
     }
 }

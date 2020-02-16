@@ -91,7 +91,7 @@ class MCP23008_CharLCD {
         this.writeCommand(LCD_DISPLAYCONTROL | 0); //turn off display
         this.writeCommand(LCD_FUNCTIONSET | this.displayfunction);
         this.writeCommand(LCD_ENTRYMODESET | this.displaymode);  // set the entry mode
-        this.setNorwegianChars();
+        this.setCustomChars();
         this.clearDisplay();
         this.backlightOn();
         this.displayOn();
@@ -130,7 +130,7 @@ class MCP23008_CharLCD {
     }
 
     writeChar(char) {
-        this.write8bits(this.translateNorwegianChar(char), true);
+        this.write8bits(this.translateChar(char), true);
         this.cursorColumn++;
     }
 
@@ -140,7 +140,7 @@ class MCP23008_CharLCD {
     }
 
     writeString(string) {
-        string = String(string);//this.translateNorwegianChars(String(string));
+        string = String(string);//this.translateNorwegianChars(String(string)); //why the cast??
         for (var i = 0; i < string.length; i++) {
             this.writeChar(string.charCodeAt(i));
         }
@@ -230,7 +230,7 @@ class MCP23008_CharLCD {
         this.setCursorPos(this.cursorColumn, this.cursorRow); //reset cursor for char output
     }
 
-    setNorwegianChars() {
+    setCustomChars() {
         this.setCustomChar(0, 0b01111, 0b10100, 0b10100, 0b11111, 0b10100, 0b10100, 0b10111, 0b00000); //Æ
         this.setCustomChar(1, 0b00001, 0b01110, 0b10011, 0b10101, 0b10101, 0b11001, 0b01110, 0b10000); //Ø 
         this.setCustomChar(2, 0b00100, 0b01010, 0b00100, 0b01110, 0b10001, 0b11111, 0b10001, 0b00000); //Å 
@@ -239,7 +239,7 @@ class MCP23008_CharLCD {
         this.setCustomChar(5, 0b00100, 0b00000, 0b01110, 0b00001, 0b01111, 0b10001, 0b01111, 0b00000); //å 
     }
 
-    translateNorwegianChar(char) {
+    translateChar(char) {
         switch (char) {
             case 198: // Æ
                 char = 0;

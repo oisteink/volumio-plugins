@@ -17,6 +17,9 @@ class lcdAnimatedString {
 
     }*/
 
+    /**
+     * @param {String} value
+     */
     set string(value) { // set internal string and reset position
         if (this._string != value) {
             this._string = value;
@@ -115,6 +118,7 @@ class lcdScreen {
     }
 
     update() {
+            this.lcd.
             this.sectionData.forEach(
                 function(section) {
                     if (section.enabled) {

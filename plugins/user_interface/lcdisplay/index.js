@@ -46,21 +46,9 @@ lcdisplay.prototype.onStart = function() {
 	//get the volumio version - it's a hack, but works. I know nothing about how to properly handle the promise :)
 	var systemController = self.commandRouter.pluginManager.getPlugin('system_controller', 'system');
 	var sysinfo = systemController.getSystemVersion();
-	//var installedPlugins = self.commandRouter.getInstalledPlugins();
-	//get my version self.commandRouter.pluginManager.getInstalledPlugins? Fucket - don't really care for now, see websocket plugin for info
-	/*self.commandRouter.pushConsoleMessage();
-	self.commandRouter.pushConsoleMessage();
-	//0=context, 1=commandRouter, 2=logger, 3=configManager, 4=config, 5=previousState, 6=lcd, 7=intervalHandle, 8=timeoutHandle, 9=startPlayTime
-	//context: 0=coreCommand, 1=websocketServer, 2=configManager, 3=logger, 4=env
-	if (installedPlugins) {
-		installedPlugins.then(function (plugins) {
-			self.commandRouter.pushConsoleMessage(JSON.stringify(plugins));
-		});
-	}	
-	//self.commandRouter.pushConsoleMessage(Object.keys(installedPlugins._data));*/
 
-	this.startupScreen = new lcdutils.lcdScreen(this.lcd); //make startup display??
-	this.startupScreen.addStringSection('product', 'RSound v0.3.01', 16, 0, 0, 0);
+	this.startupScreen = new lcdutils.lcdScreen(this.lcd); //make startup display - should mabe use let to not keep it in memory. unless we want to re-show on plugin restart?
+	this.startupScreen.addStringSection('product', 'RSound v0.4', 16, 0, 0, 0); //Should come from plugin configuration "productname"
 	this.startupScreen.addStringSection('player', 'Volumio ' + sysinfo._data.systemversion, 16, 0, 0, 1);
 	this.startupScreen.showScreen();
 
@@ -75,23 +63,23 @@ lcdisplay.prototype.onStart = function() {
 	this.stopScreen.addStringSection('day', days[date.getDay()], 8, 0, 0, 1); //wednesday
 	this.stopScreen.addStringSection('date', String(date.getDate()).padStart(2, ' ') + '. ' + months[date.getMonth()] + ' ' + date.getFullYear(), 13, 0, 3, 0); // 31. Jan. 2020
 	this.stopScreen.addStringSection('time', String(date.getHours()).padStart(2, '0') +':' + String(date.getMinutes()).padStart(2, '0'), 5, 0, 11, 1); // 22:00
+	
 	// Once the Plugin has successfull started resolve the promise
 	defer.resolve();
-
     return defer.promise;
 };
 
 lcdisplay.prototype.onStop = function() {
     var self = this;
     var defer=libQ.defer();
+	//stop all timers
+	this.clearTimers();
 	// Stop the display
 	this.lcd.finished();
 	this.lcd = undefined;
-	//stop all timers??
 
     // Once the Plugin has successfull stopped resolve the promise
     defer.resolve();
-
     return libQ.resolve();
 };
 
@@ -163,14 +151,11 @@ lcdisplay.prototype.stopTimeoutHandler = function() {
 	this.stopScreen.showScreen();
 	this.screenTimeoutHandle = setTimeout(this.screenTimeoutHandler.bind(this), 30*60*1000); //turn off screen after 30 min
 	this.intervalHandle = setInterval(this.stopIntervalHandler.bind(this), 20000); //every 20 sec is enough? clock don't have to be that accurate...
-	//this.intervalHandle = setInterval(function(){self.playIntervalHandler()}, 1000); //this works probably because of self rather than this.
 }
 
 lcdisplay.prototype.stopIntervalHandler = function() {
 	this.updateStopscreen();
-	//this.stopScreen.animate(); //We don't really animate
 	this.stopScreen.update();
-	//this.stopScreen.getSection('date').string = 
 }
 
 lcdisplay.prototype.playIntervalHandler = function() {
@@ -180,7 +165,6 @@ lcdisplay.prototype.playIntervalHandler = function() {
 	}
 	this.playScreen.animate();
 	this.playScreen.update();
-	//self.commandRouter.pushConsoleMessage('done update screen');
 }
 
 lcdisplay.prototype.clearTimers = function() {
@@ -200,25 +184,19 @@ lcdisplay.prototype.clearTimers = function() {
 	}
 }
 
+lcdisplay.prototype.log = function(message) {
+	this.commandRouter.pushConsoleMessage('[lcdisplay] ' + message);
+}
+
 // receive updated State
 lcdisplay.prototype.pushState = function(state) {
-	var self = this;
-	this.inStateHandler = true;
-	if ((state != undefined) & (this.inStateHandler)) {
+	if (state != undefined) {
 		if ((state.status != this.previousState.status) || (state.title != this.previousState.title) || (state.artist != this.previousState.artist) || (state.album != this.previousState.album)) {
 			this.clearTimers(); //clear timers
-			this.previousState = state; //I think it's best to set here, as we might get several calls during one update
-			/*self.commandRouter.pushConsoleMessage('----------------------------------------------------------------------------'); // notice me!
-			//self.commandRouter.pushConsoleMessage('lcdisplay new state: ' + state.status + ' | ' + state.title + ' | ' + state.artist + ' | ' + state.album);
-			self.commandRouter.pushConsoleMessage('----------------------------------------------------------------------------');*/
-
-			//lets stop all intervals and timeouts - i think we want to as we are changing state.
+			//this.previousState = state; //I think it's best to set here, as we might get several calls during one update
 
 			switch (state.status) {
 				case 'play':
-					self.commandRouter.pushConsoleMessage();
-					self.commandRouter.pushConsoleMessage('lcdisplay - PLAY: ' + state.status + ' | ' + state.title + ' | ' + state.artist + ' | ' + state.album);
-					self.commandRouter.pushConsoleMessage();
 					this.playScreen.getSection('command').enabled = false; //disable command - we either want playtime or nothing
 					this.playScreen.getSection('songtitle').string = state.title;
 					if (state.stream === true) {
@@ -231,31 +209,25 @@ lcdisplay.prototype.pushState = function(state) {
 						this.playScreen.getSection('songtitle').displayWidth = 10; //make room for playtime
 						this.playScreen.getSection('playtime').enabled = true;     //enable showing  playtime
 						// set start time relative to seek
-						this.startPlayTime = Date.now()-state.seek;  //moment().subtract(state.seek, 'milliseconds');
-						this.secondsPlayed = Math.round((Date.now() - this.startPlayTime) / 1000);  //Math.round((moment() - this.startPlayTime) / 1000);
-						//self.commandRouter.pushConsoleMessage(Math.round());
-						self.commandRouter.pushConsoleMessage(Date.now() - state.seek);
+						this.startPlayTime = Date.now()-state.seek;  
+						this.secondsPlayed = Math.round((Date.now() - this.startPlayTime) / 1000);  
 						this.playScreen.getSection('playtime').string = String(Math.floor(this.secondsPlayed / 60)).padStart(2, '0') + ':' + String(this.secondsPlayed % 60).padStart(2, '0');
 
 					}
-					//this.commandRouter.pushConsoleMessage(this.playScreen);
 					this.playScreen.showScreen();
 					//start timer to update time every second
-					this.intervalHandle = setInterval(this.playIntervalHandler.bind(this), 1000); //this works probably because of self rather than this.
+					this.previousState = state; //state is handled
+					this.intervalHandle = setInterval(this.playIntervalHandler.bind(this), 1000); 
 					break;
 				case 'stop':
-					/*self.commandRouter.pushConsoleMessage();
-					self.commandRouter.pushConsoleMessage('lcdisplay - STOP: ' + state.status + ' | ' + state.title + ' | ' + state.artist + ' | ' + state.album);
-					self.commandRouter.pushConsoleMessage();*/
+					this.previousState = state; //state is handled
 					this.timeoutHandle = setTimeout(this.stopTimeoutHandler.bind(this), 2000); //wait 2 sec before we say it's stopped
 					break;
 				case '':
-					self.commandRouter.pushConsoleMessage('lcdisplay - state is empty string - STOPED?');
+					this.previousState = state; //state is handled
+					this.log('state is empty string - STOPED?');
 					break;
 				case 'pause':
-					/*self.commandRouter.pushConsoleMessage();
-					self.commandRouter.pushConsoleMessage('lcdisplay - PAUSE: ' + state.title + ' | ' + state.artist + ' | ' + state.album);
-					self.commandRouter.pushConsoleMessage();*/
 					//there should be something playing so we adjust to make room for 'command', enable 'command' and disable 'playtime'
 					this.playScreen.getSection('songtitle').displayWidth = 10;
 					this.playScreen.getSection('command').enabled = true;
@@ -265,37 +237,24 @@ lcdisplay.prototype.pushState = function(state) {
 					//this.lcd.clearDisplay();
 					this.playScreen.showScreen();
 
+					this.previousState = state; //state is handled
 					this.intervalHandle = setInterval(this.playIntervalHandler.bind(this), 2000); //only update ever 2 sec
 					this.timeoutHandle = setTimeout(this.stopTimeoutHandler.bind(this), 60000); //after 60 sec pause assume we are stopped.
 					break;
 				default:
-					self.commandRouter.pushConsoleMessage('lcdisplay - OTHER:' + state.status);
+					this.previousState = state; //state is handled
+					this.log('OTHER:' + state.status);
 			}
-
-			//previousState = state;
 		} else {
-			self.commandRouter.pushConsoleMessage('lcdisplay dup state: ' + state.status + ' | ' + state.title + ' | ' + state.artist + ' | ' + state.album);
 			switch (state.status) {
 				case 'play':
+					this.previousState = state; //state is handled
 					this.startPlayTime = Date.now()-state.seek;
 					break;
 			}
 		}
-		this.inStateHandler = false;	
 	} else {
-		self.commandRouter.pushConsoleMessage('lcdisplay - status is undefined')
+		this.log('status is undefined')
 	}
 
 };
-
-
-/*		//seek i sekunder
-		var secseek = Math.floor(state.seek/1000);
-		self.commandRouter.pushConsoleMessage('lcdisplay state --  consume:' + state.consume + 
-																' volatile:' + state.volatile + 
-																' service:' + state.service + 
-																' secseek:' + secseek + 
-																' seek:' + Math.floor(secseek/60) + ':' + secseek % 60 + 
-																' duration:' + Math.floor(state.duration/60) + ':' + state.duration % 60 + 
-																' song:' + state.title);
-*/													
