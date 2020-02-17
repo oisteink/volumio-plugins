@@ -1,6 +1,6 @@
 {
 	"name": "lastfmscrobble",
-	"version": "1.0.0",
+	"version": "0.3.2",
 	"description": "Scrobbles to last.fm",
 	"main": "index.js",
 	"scripts": {
@@ -10,7 +10,7 @@
 	"license": "ISC",
 	"volumio_info": {
 		"prettyName": "lastfmscrobble",
-		"icon": "fa-lightbulb-o",
+		"icon": "fa-lastfm-square",
 		"plugin_type": "miscellanea"
 	},
 	"dependencies": {
