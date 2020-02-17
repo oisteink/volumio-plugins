@@ -57,13 +57,12 @@ lastfmscrobble.prototype.onStart = function () {
 	if (this.config.get('logdebug')) {
 		this.logger.transports.file.level = 'debug';
 	}
-	//this.logger.info('lastfmscrobbler file transport level: ' + this.logger.transports.file.level, {label: 'Øistein'});
 	this.previousState = { status: '', title: '', artist: '', album: '' }; //better would be to use getEmptyState from CoreStateMachine
 	this.scrobbleTimeoutHandle = 0;
-	this.lfmScrobbleData = {};
-	this.previouslfmScrobbleData = undefined; //It's not yet defined
+	this.lfmScrobbleData = {}; //Can I just figure out one way to deal with variable initialization and use it consistently? todo: grow up
+	this.previouslfmScrobbleData = undefined; //Is this needed? I think any property is undefined the first time it's accessed, so handling all that way would work, yes?
 	this.setupLastFM()
-		.then(message => {
+		.then(message => { //Thought was to have lastfm initialized before we could get any pushState messages.
 			this.socket = io.connect('http://localhost:3000');
 			this.socket.on('pushState', this.stateHandler.bind(this));
 			defer.resolve('onStart done ' + message);
@@ -107,7 +106,7 @@ lastfmscrobble.prototype.debug = function (logstring) { //shortcut to debug logg
 }
 
 lastfmscrobble.prototype.setlfmScrobbledata = function (state) {
-	this.lfmScrobbleData = { timestamp: Math.floor(Date.now() / 1000) }; //clear variable, and add timestamp
+	this.lfmScrobbleData = { timestamp: Math.floor(Date.now() / 1000) }; //clear variable, and add timestamp. nowPlaying ignores it and it's needed for scrobbles (in ms)
 	if (state['service'] === 'webradio') { //handle webradio - split artist into album and artist and ignore album
 		let artrack = state['title'].split(' - ');
 		if (artrack.length == 2) {
@@ -126,7 +125,7 @@ lastfmscrobble.prototype.setlfmScrobbledata = function (state) {
  * Handler for the scrobble timeout
  */
 lastfmscrobble.prototype.scrobbleTimeoutHandler = function () {
-	this.previouslfmScrobbleData = this.lfmScrobbleData; //Store scrobble for check later
+	this.previouslfmScrobbleData = this.lfmScrobbleData; //Store scrobble for comparison later
 	this.debug('Starting scrobble');
 	this.lastfm.trackScrobble(this.lfmScrobbleData)
 		.then(this.lfmScrobbleOk.bind(this))
@@ -184,7 +183,7 @@ lastfmscrobble.prototype.lfmNowPlaying = function () {
  * @returns {boolean} True if new scrobble
  */
 lastfmscrobble.prototype.isNewScrobble = function () {
-	if (this.previouslfmScrobbleData) {
+	if (this.previouslfmScrobbleData) { //Maybe we can just merge this into one return statement? todo: look into js short circuit termination
 		return ((this.lfmScrobbleData['artist'] != this.previouslfmScrobbleData['artist']) || (this.lfmScrobbleData['track'] != this.previouslfmScrobbleData['track']) || (this.lfmScrobbleData['album'] != this.previouslfmScrobbleData['album']));
 	} else {
 		return true;
@@ -196,7 +195,7 @@ lastfmscrobble.prototype.isNewScrobble = function () {
  * @param {volumioState} state Volumio state object
  */
 lastfmscrobble.prototype.SetuplfmScrobble = function (state) {
-	if (this.isNewScrobble()) {
+	if (this.isNewScrobble()) { //This disables the ability to scrobble same sone twice. It's a tradeoff between that and scrobbling songs > 8 minutes twice if paused after 4 minutes. Or worse on webradio
 		if (state['service'] === 'webradio') { //for web radio we scrobble after 30 seconds (this is minimum song length to scrobble)
 			if (this.config.get('scobblewebradio')) {
 				this.log('Will scrobble ' + state.title + ' in 0:30 (webradio)');
@@ -204,11 +203,9 @@ lastfmscrobble.prototype.SetuplfmScrobble = function (state) {
 			}
 		} else {
 			if (state.duration > 30) { 	//The track must be longer than 30 seconds, and play for min 50% or 4 minutes
-				let msToScrobble = Math.min(
-					Math.round((state.duration / 2) * 1000),
-					4 * 60 * 1000);
+				let msToScrobble = Math.min(Math.round((state.duration / 2) * 1000), 4 * 60 * 1000);
 				if ((state.title == this.previousState.title) && (state.artist == this.previousState.artist) && (state.album == this.previousState.album) && (msToScrobble > state.seek)) {
-					msToScrobble = Math.max(msToScrobble - state.seek, 0); //cheap pause handling - let's just remove seek. 50% can be first 25 and last 25 :)
+					msToScrobble = Math.max(msToScrobble - state.seek, 0); //cheap pause handling - let's just remove seek. if you pause and seek past 50% it will scrobble on next tick but w/e :)
 				}
 				this.log('Will scrobble ' + state.artist + ' - ' + state.title + '(' + state.album + ') in ' + Math.floor(msToScrobble / 60000) + ':' + Math.round(msToScrobble / 1000) % 60);
 				this.scrobbleTimeoutHandle = setTimeout(this.scrobbleTimeoutHandler.bind(this), msToScrobble);
@@ -234,7 +231,7 @@ lastfmscrobble.prototype.stateHandler = function (state) {
 				this.SetuplfmScrobble(state);
 				break;
 		}
-		this.previousState = state; //We have handled this state
+		this.previousState = state; //We have handled this state, store it for comparison
 	}
 }
 
@@ -245,7 +242,7 @@ lastfmscrobble.prototype.stateHandler = function (state) {
  */
 lastfmscrobble.prototype.setupLastFM = function () {
 	var defer = libQ.defer();
-	let Username = this.config.get('username') || '';
+	let Username = this.config.get('username') || ''; //Seems like short cirtuit evaluation works in js : https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_Operators
 	let Password = this.config.get('password') || '';
 	let SessionKey = this.config.get('session_key') || '';
 	this.lastfm = new lastfmNodeClient(API_Key, API_Secret, SessionKey);
@@ -264,7 +261,7 @@ lastfmscrobble.prototype.setupLastFM = function () {
 	} else { //Assume the SessionKey is OK :)
 		defer.resolve('LastFM login OK')
 	}
-	return defer.promise; //should not be able to get here!
+	return defer.promise; 
 }
 
 /**
@@ -286,8 +283,11 @@ lastfmscrobble.prototype.saveLoggSettings = function (data) {
 	this.config.set('logdebug', data['logdebug']);
 	this.config.save();
 	this.logger.transports.file.level = data['logdebug'] ? 'debug' : 'info';
-
-	this.commandRouter.pushToastMessage('success', 'Log settings', 'Settings saved');
+/**
+ * @todo i18n translations of toasts in save methods
+ * this.commandRouter.sharedVars.get('language_code') gives current language
+ */
+	this.commandRouter.pushToastMessage('success', 'Log settings', 'Settings saved'); 
 	defer.resolve('Log settings saved');
 	return defer.promise;
 }
@@ -334,7 +334,7 @@ lastfmscrobble.prototype.getUIConfig = function () {
 		__dirname + '/UIConfig.json')
 		.then(function (uiconf) {
 			//user
-			uiconf.sections[0].content[0].value = self.config.get('username');
+			uiconf.sections[0].content[0].value = self.config.get('username'); //can use this if we do arrow function expression instead. I get confused by the mix of this and self
 			uiconf.sections[0].content[1].value = self.config.get('password');
 
 			//settings

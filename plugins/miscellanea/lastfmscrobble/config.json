@@ -6,5 +6,21 @@
     "password" : {
         "type": "string",
         "value": ""
-    }
+    },
+    "toastscrobbles": {
+        "type": "boolean",
+        "value": true
+      },
+      "scobblewebradio": {
+        "type": "boolean",
+        "value": false
+      },
+      "loginfo": {
+        "type": "boolean",
+        "value": false
+      },
+      "logdebug": {
+        "type": "boolean",
+        "value": false
+      }
 }
