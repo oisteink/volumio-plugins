@@ -9,7 +9,7 @@
 	"author": "Øistein Kjos",
 	"license": "ISC",
 	"volumio_info": {
-		"prettyName": "lastfmscrobble",
+		"prettyName": "last.fm scrobbler",
 		"icon": "fa-lastfm-square",
 		"plugin_type": "miscellanea"
 	},
