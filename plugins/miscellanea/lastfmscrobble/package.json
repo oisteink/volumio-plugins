@@ -1,6 +1,6 @@
 {
 	"name": "lastfmscrobble",
-	"version": "0.3.2",
+	"version": "0.3.3",
 	"description": "Scrobbles to last.fm",
 	"main": "index.js",
 	"scripts": {
