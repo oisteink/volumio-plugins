@@ -6,11 +6,15 @@
     {
       "id": "user",
       "element": "section",
-      "label": "last.fm account information",
+      "label": "TRANSLATE.USER_SETTINGS",
       "icon": "fa-user",
-      "onSave": {"type":"controller", "endpoint":"miscellanea/lastfmscrobble", "method":"saveLastfmAccount"},
+      "onSave": {
+        "type": "controller",
+        "endpoint": "miscellanea/lastfmscrobble",
+        "method": "saveLastfmAccount"
+      },
       "saveButton": {
-        "label": "Log in",
+        "label": "TRANSLATE.LOG_IN",
         "data": [
           "username",
           "password"
@@ -20,17 +24,15 @@
         {
           "id": "username",
           "element": "input",
-          "type":"text",
-          "doc": "This is the username of your last.fm account",
-          "label": "Username",
+          "type": "text",
+          "label": "TRANSLATE.USER_USERNAME",
           "value": ""
         },
         {
           "id": "password",
           "element": "input",
           "type": "text",
-          "doc": "This is your last.fm password",
-          "label": "Password",
+          "label": "TRANSLATE.USER_PASSWORD",
           "value": ""
         }
       ]
@@ -38,11 +40,15 @@
     {
       "id": "settings",
       "element": "section",
-      "label": "Plugin settings",
+      "label": "TRANSLATE.PLUGIN_SETTINGS",
       "icon": "fa-cogs",
-      "onSave": {"type":"controller", "endpoint":"miscellanea/lastfmscrobble", "method":"savePluginSettings"},
+      "onSave": {
+        "type": "controller",
+        "endpoint": "miscellanea/lastfmscrobble",
+        "method": "savePluginSettings"
+      },
       "saveButton": {
-        "label": "Save settings",
+        "label": "TRANSLATE.PLUGIN_SAVE_SETTINGS",
         "data": [
           "toastscrobbles",
           "scobblewebradio"
@@ -52,16 +58,16 @@
         {
           "id": "toastscrobbles",
           "element": "switch",
-          "label": "Toast scrobbles",
-          "description": "Show a toast after successfull scrobble",
+          "label": "TRANSLATE.PLUGIN_TOAST_SCROBBLES",
+          "description": "TRANSLATE.PLUGIN_TOAST_SCROBBLES_DESC",
           "value": false
         },
         {
           "id": "scobblewebradio",
           "element": "switch",
-          "label": "Scrobble webradio",
-          "description": "Attempt to scrobble webradio",
-          "doc": "It works as long as the title is formatted like: [artist] - [title]. Otherwise it will either fail or last.fm will ignore the scrobble.",
+          "label": "TRANSLATE.PLUGIN_SCROBBLE_WEBRADIO",
+          "description": "TRANSLATE.PLUGIN_SCROBBLE_WEBRADIO_DESC",
+          "doc": "TRANSLATE.PLUGIN_SCROBBLE_WEBRADIO_DOC",
           "value": false
         }
       ]
@@ -69,11 +75,15 @@
     {
       "id": "logging",
       "element": "section",
-      "label": "Logging",
+      "label": "TRANSLATE.LOGGING",
       "icon": "fa-file-alt",
-      "onSave": {"type":"controller", "endpoint":"miscellanea/lastfmscrobble", "method":"saveLoggSettings"},
+      "onSave": {
+        "type": "controller",
+        "endpoint": "miscellanea/lastfmscrobble",
+        "method": "saveLoggSettings"
+      },
       "saveButton": {
-        "label": "Save log settings",
+        "label": "TRANSLATE.LOGGING_SAVE_SETTINGS",
         "data": [
           "loginfo",
           "logdebug"
@@ -83,15 +93,15 @@
         {
           "id": "loginfo",
           "element": "switch",
-          "label": "Log information",
-          "description": "Writes various information to the log. It will give you some information about what's going on",
+          "label": "TRANSLATE.LOGGING_LOG_INFORMATION",
+          "description": "TRANSLATE.LOGGING_LOG_INFORMATION_DESC",
           "value": false
         },
         {
           "id": "logdebug",
           "element": "switch",
-          "label": "Log debug information",
-          "description": "Writes debug information to the log. It's quite extensive and might not be helpfull for you.",
+          "label": "TRANSLATE.LOGGING_LOG_DEBUG",
+          "description": "TRANSLATE.LOGGING_LOG_DEBUG_DESC",
           "value": false
         }
       ]
