@@ -7,10 +7,10 @@
       "id": "user",
       "element": "section",
       "label": "last.fm account information",
-      "icon": "fa_plug",
+      "icon": "fa-user",
       "onSave": {"type":"controller", "endpoint":"miscellanea/lastfmscrobble", "method":"saveLastfmAccount"},
       "saveButton": {
-        "label": "Save",
+        "label": "Log in",
         "data": [
           "username",
           "password"
@@ -19,19 +19,80 @@
       "content": [
         {
           "id": "username",
-          "type":"text",
           "element": "input",
+          "type":"text",
           "doc": "This is the username of your last.fm account",
           "label": "Username",
           "value": ""
         },
         {
           "id": "password",
-          "type": "text",
           "element": "input",
+          "type": "text",
           "doc": "This is your last.fm password",
           "label": "Password",
           "value": ""
+        }
+      ]
+    },
+    {
+      "id": "settings",
+      "element": "section",
+      "label": "Plugin settings",
+      "icon": "fa-cogs",
+      "onSave": {"type":"controller", "endpoint":"miscellanea/lastfmscrobble", "method":"savePluginSettings"},
+      "saveButton": {
+        "label": "Save settings",
+        "data": [
+          "toastscrobbles",
+          "scobblewebradio"
+        ]
+      },
+      "content": [
+        {
+          "id": "toastscrobbles",
+          "element": "switch",
+          "label": "Toast scrobbles",
+          "description": "Show a toast after successfull scrobble",
+          "value": false
+        },
+        {
+          "id": "scobblewebradio",
+          "element": "switch",
+          "label": "Scrobble webradio",
+          "description": "Attempt to scrobble webradio",
+          "doc": "It works as long as the title is formatted like: [artist] - [title]. Otherwise it will either fail or last.fm will ignore the scrobble.",
+          "value": false
+        }
+      ]
+    },
+    {
+      "id": "logging",
+      "element": "section",
+      "label": "Logging",
+      "icon": "fa-file-alt",
+      "onSave": {"type":"controller", "endpoint":"miscellanea/lastfmscrobble", "method":"saveLoggSettings"},
+      "saveButton": {
+        "label": "Save log settings",
+        "data": [
+          "loginfo",
+          "logdebug"
+        ]
+      },
+      "content": [
+        {
+          "id": "loginfo",
+          "element": "switch",
+          "label": "Log information",
+          "description": "Writes various information to the log. It will give you some information about what's going on",
+          "value": false
+        },
+        {
+          "id": "logdebug",
+          "element": "switch",
+          "label": "Log debug information",
+          "description": "Writes debug information to the log. It's quite extensive and might not be helpfull for you.",
+          "value": false
         }
       ]
     }
