@@ -14,7 +14,7 @@
         "method": "saveLastfmAccount"
       },
       "saveButton": {
-        "label": "TRANSLATE.LOG_IN",
+        "label": "TRANSLATE.USER_LOG_IN",
         "data": [
           "username",
           "password"
@@ -76,7 +76,7 @@
       "id": "logging",
       "element": "section",
       "label": "TRANSLATE.LOGGING",
-      "icon": "fa-file-alt",
+      "icon": "fa-pencil-square-o",
       "onSave": {
         "type": "controller",
         "endpoint": "miscellanea/lastfmscrobble",
@@ -94,14 +94,12 @@
           "id": "loginfo",
           "element": "switch",
           "label": "TRANSLATE.LOGGING_LOG_INFORMATION",
-          "description": "TRANSLATE.LOGGING_LOG_INFORMATION_DESC",
           "value": false
         },
         {
           "id": "logdebug",
           "element": "switch",
           "label": "TRANSLATE.LOGGING_LOG_DEBUG",
-          "description": "TRANSLATE.LOGGING_LOG_DEBUG_DESC",
           "value": false
         }
       ]

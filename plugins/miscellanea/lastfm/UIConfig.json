@@ -6,7 +6,7 @@
 		"id": "section_credentials",
 		"element": "section",
 		"label": "TRANSLATE.LASTFM.CONFIG",
-		"description": "TRANSLATE.LASTFM.D_CONFIG",
+		"description": "TRANSLATE.LASTFM.CONFIG_DESC",
 		"icon": "fa-lastfm",
 		"onSave": {
 			"type": "controller",

@@ -287,6 +287,7 @@ lastfmscrobble.prototype.saveLoggSettings = function (data) {
 	this.config.save();
 	this.logger.transports.file.level = data['logdebug'] ? 'debug' : 'info';
 
+	this.commandRouter.pushToastMessage('success', 'Log settings', 'Settings saved');
 	defer.resolve('Log settings saved');
 	return defer.promise;
 }
@@ -297,6 +298,7 @@ lastfmscrobble.prototype.savePluginSettings = function (data) {
 	this.config.set('toastscrobbles', data['toastscrobbles']);
 	this.config.set('scobblewebradio', data['scobblewebradio']);
 	this.config.save();
+	this.commandRouter.pushToastMessage('success', 'Plugin settings', 'Settings saved');
 	defer.resolve('Plugin settings saved');
 	return defer.promise;
 }

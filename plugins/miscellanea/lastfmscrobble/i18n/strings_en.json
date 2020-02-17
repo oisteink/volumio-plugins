@@ -6,15 +6,15 @@
   "USER_LOG_IN": "Log in",
   "PLUGIN_SETTINGS": "Plugin settings",
   "PLUGIN_TOAST_SCROBBLES": "Toast scrobbles",
-  "PLUGIN_TOAST_SCROBBES_DESC": "Show a toast after successfull scrobble",
+  "PLUGIN_TOAST_SCROBBLES_DESC": "Show a toast after successfull scrobble",
   "PLUGIN_SCROBBLE_WEBRADIO": "Scrobble webradio",
   "PLUGIN_SCROBBLE_WEBRADIO_DESC": "Attempt to scrobble webradio",
   "PLUGIN_SCROBBLE_WEBRADIO_DOC": "It works as long as the title is formatted like: [artist] - [title]. Otherwise it will either fail or last.fm will ignore the scrobble.",
   "PLUGIN_SAVE_SETTINGS": "Save settings",
   "LOGGING": "Logging",
   "LOGGING_LOG_INFORMATION": "Log information",
-  "LOGGING_LOG_INFORMATION_DESC": "Writes various information to the log. It will give you some information about what's going on",
+  "LOGGING_LOG_INFORMATION_DESC": "Log info messages",
   "LOGGING_LOG_DEBUG": "Log debug information",
-  "LOGGING_LOG_DEBUG_DESC": "Writes debug information to the log. It's quite extensive and might not be helpfull for you.",
+  "LOGGING_LOG_DEBUG_DESC": "Log debug messages",
   "LOGGING_SAVE_SETTINGS": "Save log settings"
 }
