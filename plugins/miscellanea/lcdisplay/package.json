@@ -1,0 +1,24 @@
+{
+	"name": "lcdisplay",
+	"version": "0.3.01",
+	"description": "Shows shit on the LCD",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Øistein Kjos",
+	"license": "ISC",
+	"volumio_info": {
+		"prettyName": "lcdisplay",
+		"icon": "fa-lightbulb-o",
+		"plugin_type": "user_interface"
+	},
+	"dependencies": {
+		"fs-extra": "^0.28.0",
+		"i2c-bus": "^5.1.0",
+		"kew": "^0.7.0",
+		"sleep": "^6.1.0",
+		"socket.io-client": "^2.3.0",
+		"v-conf": "^1.4.0"
+	}
+}
