@@ -5,6 +5,7 @@ var config = new (require('v-conf'))();
 var lcd = require('./lcd');
 var lcdutils = require('./lcdutils');
 const io = require('socket.io-client');
+var moment = require('moment');
 
 const days = ['Søndag', 'Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag'];
 const months = ['Jan.', 'Feb.', 'Mars', 'Apr.', 'Mai', 'Juni', 'Juli', 'Aug.', 'Sep.', 'Okt.', 'Nov.', 'Des.'];
@@ -32,6 +33,8 @@ lcdisplay.prototype.onVolumioStart = function()
 lcdisplay.prototype.onStart = function() {
     var self = this;
 	var defer=libQ.defer();
+	//set locale for moment
+	moment.locale('nb');//this.commandRouter.sharedVars.get('language_code'));
 	
 	this.previousState = {status: '', title: '', artist: '', album: ''}; //clear this again for good measure :)
 
@@ -52,17 +55,15 @@ lcdisplay.prototype.onStart = function() {
 	this.startupScreen.showScreen();
 
 	this.playScreen = new lcdutils.lcdScreen(this.lcd);
-	this.playScreen.addStringSection('artistalbum', '', 16, 4, 0, 0);  //"Artist - Album" or just "Artist" for webradio - use whole screen width
-	this.playScreen.addStringSection('songtitle', '', 10, 4, 0, 1);    //"Title" - we will stretch this for webradio as there is not (relevant) playtime
+	this.playScreen.addStringSection('artistalbum', '', 16, 1, 0, 0, true, 6);  //"Artist - Album" or just "Artist" for webradio - use whole screen width (sec per frame = 1.5) 3 sec pause start and end
+	this.playScreen.addStringSection('songtitle', '', 10, 1, 0, 1, true, 6);    //"Title" - we will stretch this for webradio as there is not (relevant) playtime
 	this.playScreen.addStringSection('playtime', '', 5, 1, 11, 1);     //"MM:SS" of current song - disabled for pause and webradio
-	this.playScreen.addStringSection('command', '', 5, 1, 11, 1);      //Enabled for pause, otherwise disabled
+	this.playScreen.addStringSection('command', '', 5, 1, 11, 1, false);      //Enabled for pause, otherwise disabled
 
 	this.stopScreen = new lcdutils.lcdScreen(this.lcd);
-	var date = new Date(Date.now());
-	this.stopScreen.addStringSection('day', days[date.getDay()], 8, 0, 0, 1); //wednesday
-	this.stopScreen.addStringSection('date', String(date.getDate()).padStart(2, ' ') + '. ' + months[date.getMonth()] + ' ' + date.getFullYear(), 13, 0, 3, 0); // 31. Jan. 2020
-	this.stopScreen.addStringSection('time', String(date.getHours()).padStart(2, '0') +':' + String(date.getMinutes()).padStart(2, '0'), 5, 0, 11, 1); // 22:00
-	
+	//this.stopScreen.addStringSection('top', '', 16, 1, 0, 0); //wednesday 20th september 2020
+	this.stopScreen.addStringSection('time', '', 16, 0, 0, 1); // 01.17.2020 22:00
+
 	this.socket = io.connect('http://localhost:3000');
 	this.socket.on('pushState', this.stateHandler.bind(this));
 
@@ -95,23 +96,16 @@ lcdisplay.prototype.onRestart = function() {
 
 lcdisplay.prototype.getUIConfig = function() {
     var defer = libQ.defer();
-    var self = this;
 
     var lang_code = this.commandRouter.sharedVars.get('language_code');
 
-    self.commandRouter.i18nJson(__dirname+'/i18n/strings_'+lang_code+'.json',
+    this.commandRouter.i18nJson(__dirname+'/i18n/strings_'+lang_code+'.json',
         __dirname+'/i18n/strings_en.json',
         __dirname + '/UIConfig.json')
-        .then(function(uiconf)
-        {
-
-
-            defer.resolve(uiconf);
-        })
-        .fail(function()
-        {
-            defer.reject(new Error());
-        });
+        .then(uiconf => {
+			defer.resolve(uiconf)
+		})
+        .fail(() => defer.reject(new Error()));
 
     return defer.promise;
 };
@@ -136,10 +130,9 @@ lcdisplay.prototype.setConf = function(varName, varValue) {
 };
 
 lcdisplay.prototype.updateStopscreen = function() {
-	var date = new Date(Date.now());
-	this.stopScreen.getSection('day').string = days[date.getDay()];
-	this.stopScreen.getSection('date').string = String(date.getDate()).padStart(2, ' ') + '. ' + months[date.getMonth()] + ' ' + date.getFullYear();
-	this.stopScreen.getSection('time').string = String(date.getHours()).padStart(2, '0') +':' + String(date.getMinutes()).padStart(2, '0');
+	//this.stopScreen.getSection('top').string = //Nothing to see here, move along
+	this.stopScreen.getSection('time').string = moment().format('L HH:mm');
+	//this.stopScreen.animate(); There's currently nothing to animate
 }
 
 lcdisplay.prototype.screenTimeoutHandler = function() {
@@ -152,7 +145,7 @@ lcdisplay.prototype.stopTimeoutHandler = function() {
 	this.updateStopscreen();
 	this.stopScreen.showScreen();
 	this.screenTimeoutHandle = setTimeout(this.screenTimeoutHandler.bind(this), 30*60*1000); //turn off screen after 30 min
-	this.intervalHandle = setInterval(this.stopIntervalHandler.bind(this), 20000); //every 20 sec is enough? clock don't have to be that accurate...
+	this.intervalHandle = setInterval(this.stopIntervalHandler.bind(this), 2000); //every 2 sec is enough? clock don't have to be that accurate...
 }
 
 lcdisplay.prototype.stopIntervalHandler = function() {
@@ -162,8 +155,7 @@ lcdisplay.prototype.stopIntervalHandler = function() {
 
 lcdisplay.prototype.playIntervalHandler = function() {
 	if (this.playScreen.getSection('playtime').enabled) { //update time if enabled
-		this.secondsPlayed = Math.round((Date.now() - this.startPlayTime) / 1000);//Math.round((moment() - this.startPlayTime) / 1000);
-		this.playScreen.getSection('playtime').string = String(Math.floor(this.secondsPlayed / 60)).padStart(2, '0') + ':' + String(this.secondsPlayed % 60).padStart(2, '0');
+		this.playScreen.getSection('playtime').string = moment().subtract(this.startPlayTime, 'ms').format('mm:ss');
 	}
 	this.playScreen.animate();
 	this.playScreen.update();
@@ -219,7 +211,7 @@ lcdisplay.prototype.stateHandler = function(state) {
 					this.playScreen.showScreen();
 					//start timer to update time every second
 					this.previousState = state; //state is handled
-					this.intervalHandle = setInterval(this.playIntervalHandler.bind(this), 1000); 
+					this.intervalHandle = setInterval(this.playIntervalHandler.bind(this), 250);  //update 4 times pr sec / each update takes just under 100ms
 					break;
 				case 'stop':
 					this.previousState = state; //state is handled
